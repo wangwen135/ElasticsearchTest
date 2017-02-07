@@ -5,8 +5,4 @@
 * 未已经有的数据添加字段  
 * 还有一些其他的测试
 
-<<<<<<< HEAD
-sdfsfd
-=======
-
->>>>>>> branch 'master' of https://github.com/wangwen135/ElasticsearchTest.git
+聚合什么的
