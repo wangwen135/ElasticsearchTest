@@ -15,20 +15,31 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
 public class Output {
+
+    /**
+     * 一批获取数据
+     */
+    private static final int BATCH_SIZE = 10000;
+
+    /**
+     * 文件记录数
+     */
+    private static final int FILE_RECORD = 300000;
+
     /**
      * 文件保存路径
      */
-    private static final String filePath = "D:\\temp\\esExport\\";
+    private static final String filePath = "F:\\数据文件\\bdmi\\";
 
     /**
      * 索引名称
      */
-    private static final String indexName = "critical";
+    private static final String indexName = "bdmi4";
 
     /**
      * 类型名称
      */
-    private static final String typeName = "d1";
+    private static final String typeName = "p1";
 
     public static void main(String[] args) throws UnknownHostException {
 
@@ -37,10 +48,12 @@ public class Output {
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.1.91"), 9300))
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.1.92"), 9300));
 
-        SearchResponse scrollResp = client.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery()).setSize(10000).setScroll(new TimeValue(600000))
+        SearchResponse scrollResp = client.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery()).setSize(BATCH_SIZE).setScroll(new TimeValue(600000))
                 .execute().actionGet();
 
-        String outputFile = filePath + indexName + "#" + typeName + ".json";
+        int fileIndex = 0;
+
+        String outputFile = getFileName(fileIndex);
 
         BufferedWriter out = null;
 
@@ -55,7 +68,10 @@ public class Output {
 
                     totalSize++;
 
-                    out.write(hit.getSourceAsString());
+                    out.write(hit.getId());// ID
+                    out.write("\r\n");
+
+                    out.write(hit.getSourceAsString());// 数据
                     out.write("\r\n");
                     out.flush();
                 }
@@ -67,7 +83,23 @@ public class Output {
                 if (scrollResp.getHits().getHits().length == 0) {
                     break;
                 }
+
+                if (totalSize > FILE_RECORD) {
+                    out.flush();
+                    out.close();
+                    out = null;
+
+                    System.out.println(outputFile);
+                    System.out.println("导出结束，总共导出数据：" + totalSize);
+                    totalSize = 0;
+                    fileIndex++;
+                    outputFile = getFileName(fileIndex);
+                    out = new BufferedWriter(new FileWriter(outputFile));
+                }
             }
+
+            System.out.println(outputFile);
+            System.out.println("导出结束，总共导出数据：" + totalSize);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,6 +114,11 @@ public class Output {
         }
 
         System.out.println("查询结束");
+    }
+
+    private static String getFileName(int fileIndex) {
+        String outputFile = filePath + indexName + "#" + typeName + "_" + fileIndex + ".json";
+        return outputFile;
     }
 
 }
