@@ -13,12 +13,21 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
-public class Input {
+/**
+ * <pre>
+ * 注意！！
+ * 这个是有ID的
+ * </pre>
+ * 
+ * @author wwh
+ * @date 2017年2月16日 下午3:10:38
+ */
+public class Input2 {
 
     /**
      * 文件保存路径
      */
-    private static final String filePath = "F:\\数据文件\\p1\\p1_10.json";
+    private static final String filePath = "F:\\数据文件\\bdmi\\bdmi2#p1_0.json";
 
     /**
      * 索引名称
@@ -41,6 +50,7 @@ public class Input {
         try {
             br = new BufferedReader(new FileReader(new File(filePath)));
 
+            String id;
             String json;
 
             int count = 0;
@@ -48,11 +58,17 @@ public class Input {
 
             BulkRequestBuilder bulkRequest = client.prepareBulk();
 
-            while ((json = br.readLine()) != null) {
+            while ((id = br.readLine()) != null) {
+                json = br.readLine();
+                if (json == null) {
+                    System.err.println("文件格式错误，没有读到json内容");
+                    break;
+                }
                 count++;
                 total++;
 
-                bulkRequest.add(client.prepareIndex(indexName, typeName).setSource(json));
+                // 指定ID
+                bulkRequest.add(client.prepareIndex(indexName, typeName, id).setSource(json));
 
                 if (count == 500) {
                     BulkResponse bulkResponse = bulkRequest.get();
@@ -73,6 +89,8 @@ public class Input {
                     System.err.println("############ 出错了！！！！！");
                 }
 
+                bulkRequest = client.prepareBulk();
+                count = 0;
                 System.out.println("已经导入：" + total);
 
             }

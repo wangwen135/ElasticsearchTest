@@ -14,7 +14,15 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
-public class Output {
+/**
+ * <pre>
+ * 导出ID列表
+ * </pre>
+ * 
+ * @author wwh
+ * @date 2017年2月14日 下午6:20:21 
+ */
+public class OutputIDList {
 
     /**
      * 一批获取数据
@@ -24,22 +32,22 @@ public class Output {
     /**
      * 文件记录数
      */
-    private static final int FILE_RECORD = 300000;
+    private static final int FILE_RECORD = 3000000;
 
     /**
      * 文件保存路径
      */
-    private static final String filePath = "F:\\数据文件\\dwd-p1\\";
+    private static final String filePath = "F:\\数据文件\\bdmi4-id\\";
 
     /**
      * 索引名称
      */
-    private static final String indexName = "dwd-p1";
+    private static final String indexName = "bdmi4";
 
     /**
      * 类型名称
      */
-    private static final String typeName = "dwdata";
+    private static final String typeName = "p1";
 
     public static void main(String[] args) throws UnknownHostException {
 
@@ -71,8 +79,8 @@ public class Output {
                     out.write(hit.getId());// ID
                     out.write("\r\n");
 
-                    out.write(hit.getSourceAsString());// 数据
-                    out.write("\r\n");
+//                    out.write(hit.getSourceAsString());// 数据
+//                    out.write("\r\n");
                     out.flush();
                 }
 
