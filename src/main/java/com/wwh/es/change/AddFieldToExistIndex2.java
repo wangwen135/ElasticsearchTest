@@ -23,9 +23,9 @@ import org.elasticsearch.search.SearchHit;
  */
 public class AddFieldToExistIndex2 {
 
-    private static final String indexName = "dnd-on";
+    private static final String indexName = "dwd-p1";
 
-    private static final String typeName = "dndata";
+    private static final String typeName = "dwdata";
 
     public static void main(String[] args) throws UnknownHostException {
 
@@ -34,7 +34,7 @@ public class AddFieldToExistIndex2 {
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.1.91"), 9300))
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.1.92"), 9300));
 
-        SearchResponse scrollResp = client.prepareSearch(indexName).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(500).execute().actionGet();
+        SearchResponse scrollResp = client.prepareSearch(indexName).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).addField("id").setSize(500).execute().actionGet();
 
         long totalSize = 0;
 
@@ -48,7 +48,7 @@ public class AddFieldToExistIndex2 {
                 String id = hit.getId();
                 // 给每一个文档增加一个国家字段
                 // 指定国家或者通过里面的内容来判断国家
-                UpdateRequest ur = new UpdateRequest(indexName, typeName, id).doc("_country", "CH1");
+                UpdateRequest ur = new UpdateRequest(indexName, typeName, id).doc("_country", "US1");
                 bulkRequest.add(ur);
             }
             bulkRequest.get();
